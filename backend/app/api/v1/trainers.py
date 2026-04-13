@@ -51,7 +51,7 @@ async def list_trainers(
 
 @router.get("/{trainer_id}", response_model=TrainerRead)
 async def get_trainer(trainer_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    trainer = await db.get(Trainer, trainer_id)
+    trainer = await db.get(Trainer, str(trainer_id))
     if not trainer:
         raise HTTPException(404, "Trainer not found")
     return trainer
@@ -61,7 +61,7 @@ async def get_trainer(trainer_id: uuid.UUID, db: AsyncSession = Depends(get_db))
 async def update_trainer(
     trainer_id: uuid.UUID, body: TrainerUpdate, db: AsyncSession = Depends(get_db)
 ):
-    trainer = await db.get(Trainer, trainer_id)
+    trainer = await db.get(Trainer, str(trainer_id))
     if not trainer:
         raise HTTPException(404, "Trainer not found")
 
@@ -94,10 +94,10 @@ async def create_availability(
     body: TrainerAvailabilityCreate,
     db: AsyncSession = Depends(get_db),
 ):
-    trainer = await db.get(Trainer, trainer_id)
+    trainer = await db.get(Trainer, str(trainer_id))
     if not trainer:
         raise HTTPException(404, "Trainer not found")
-    avail = TrainerAvailability(trainer_id=trainer_id, **body.model_dump())
+    avail = TrainerAvailability(trainer_id=str(trainer_id), **body.model_dump())
     db.add(avail)
     await db.flush()
     await db.refresh(avail)
@@ -113,7 +113,7 @@ async def list_availabilities(
 ):
     result = await db.execute(
         select(TrainerAvailability).where(
-            TrainerAvailability.trainer_id == trainer_id
+            TrainerAvailability.trainer_id == str(trainer_id)
         )
     )
     return result.scalars().all()
@@ -125,7 +125,7 @@ async def delete_availability(
     avail_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
 ):
-    avail = await db.get(TrainerAvailability, avail_id)
-    if not avail or avail.trainer_id != trainer_id:
+    avail = await db.get(TrainerAvailability, str(avail_id))
+    if not avail or avail.trainer_id != str(trainer_id):
         raise HTTPException(404, "Availability not found")
     await db.delete(avail)

@@ -4,7 +4,6 @@ import uuid
 from datetime import date, datetime, time
 
 from sqlalchemy import Date, DateTime, ForeignKey, Numeric, String, Text, Time
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.enums import SessionStatus, VenueType
@@ -15,16 +14,16 @@ class Session(BaseModel):
     __tablename__ = "sessions"
 
     request_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("session_requests.id"), nullable=False, unique=True
+        String(36), ForeignKey("session_requests.id"), nullable=False, unique=True
     )
     match_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("matches.id"), nullable=False, unique=True
+        String(36), ForeignKey("matches.id"), nullable=False, unique=True
     )
     user_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False
+        String(36), ForeignKey("users.id"), nullable=False
     )
     trainer_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("trainers.id"), nullable=False
+        String(36), ForeignKey("trainers.id"), nullable=False
     )
 
     # schedule

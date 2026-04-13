@@ -2,8 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from sqlalchemy import Float, Integer, Numeric, String
-from sqlalchemy.dialects.postgresql import ARRAY, JSONB
+from sqlalchemy import Float, Integer, JSON, Numeric, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.enums import CrefStatus, TrainerOperationalStatus
@@ -26,10 +25,10 @@ class Trainer(BaseModel):
 
     # profile
     bio: Mapped[str | None] = mapped_column(String(1000))
-    specialties: Mapped[list] = mapped_column(ARRAY(String), server_default="{}", nullable=False)
+    specialties: Mapped[list] = mapped_column(JSON, server_default="[]", nullable=False)
     city: Mapped[str] = mapped_column(String(100), nullable=False)
     coverage_neighborhoods: Mapped[list] = mapped_column(
-        ARRAY(String), server_default="{}", nullable=False
+        JSON, server_default="[]", nullable=False
     )
     max_travel_radius_km: Mapped[float | None] = mapped_column(Float)
 

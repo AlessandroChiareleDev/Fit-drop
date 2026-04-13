@@ -4,7 +4,6 @@ import uuid
 from datetime import date, datetime, time
 
 from sqlalchemy import Date, DateTime, ForeignKey, String, Text, Time
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.enums import (
@@ -21,7 +20,7 @@ class SessionRequest(BaseModel):
     __tablename__ = "session_requests"
 
     user_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False
+        String(36), ForeignKey("users.id"), nullable=False
     )
 
     # when / where / what

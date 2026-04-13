@@ -3,8 +3,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, Float, Integer, String
-from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy import DateTime, ForeignKey, Float, Integer, JSON, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.enums import MatchStatus
@@ -15,16 +14,16 @@ class Match(BaseModel):
     __tablename__ = "matches"
 
     request_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("session_requests.id"), nullable=False
+        String(36), ForeignKey("session_requests.id"), nullable=False
     )
     trainer_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("trainers.id"), nullable=False
+        String(36), ForeignKey("trainers.id"), nullable=False
     )
     attempt_number: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
 
     # scoring
     score: Mapped[float] = mapped_column(Float, nullable=False, default=0)
-    score_breakdown: Mapped[dict | None] = mapped_column(JSONB)
+    score_breakdown: Mapped[dict | None] = mapped_column(JSON)
 
     # lifecycle
     status: Mapped[MatchStatus] = mapped_column(

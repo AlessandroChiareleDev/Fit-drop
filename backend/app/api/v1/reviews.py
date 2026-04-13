@@ -15,12 +15,13 @@ router = APIRouter(prefix="/reviews", tags=["reviews"])
 async def create_review(body: ReviewCreate, db: AsyncSession = Depends(get_db)):
     # Enforce one review per session
     existing = await db.execute(
-        select(Review).where(Review.session_id == body.session_id)
+        select(Review).where(Review.session_id == str(body.session_id))
     )
     if existing.scalar_one_or_none():
         raise HTTPException(409, "Review already exists for this session")
 
-    review = Review(**body.model_dump())
+    data = {k: str(v) if isinstance(v, uuid.UUID) else v for k, v in body.model_dump().items()}
+    review = Review(**data)
     db.add(review)
     await db.flush()
     await db.refresh(review)
@@ -37,16 +38,16 @@ async def list_reviews(
 ):
     q = select(Review).order_by(Review.created_at.desc())
     if trainer_id:
-        q = q.where(Review.trainer_id == trainer_id)
+        q = q.where(Review.trainer_id == str(trainer_id))
     if user_id:
-        q = q.where(Review.user_id == user_id)
+        q = q.where(Review.user_id == str(user_id))
     result = await db.execute(q.offset(skip).limit(limit))
     return result.scalars().all()
 
 
 @router.get("/{review_id}", response_model=ReviewRead)
 async def get_review(review_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    review = await db.get(Review, review_id)
+    review = await db.get(Review, str(review_id))
     if not review:
         raise HTTPException(404, "Review not found")
     return review

@@ -1,6 +1,16 @@
 import enum
 
 
+# ── User Roles ────────────────────────────────────────────────────
+
+
+class UserRole(str, enum.Enum):
+    STUDENT = "student"        # Aluno — busca e agenda sessões
+    TRAINER = "trainer"        # Professor — recebe sessões, gerencia agenda
+    GYM_OWNER = "gym_owner"    # Dono de academia — gerencia espaço e trainers
+    ADMIN = "admin"            # Administrador — acesso total ao sistema
+
+
 # ── Identity & Verification ──────────────────────────────────────
 
 
@@ -141,3 +151,52 @@ class IncidentImpact(str, enum.Enum):
     NONE = "none"
     WARNING = "warning"
     SUSPENSION = "suspension"
+
+
+# ── Gym ───────────────────────────────────────────────────────────
+
+
+class GymType(str, enum.Enum):
+    GYM = "gym"
+    OUTDOOR = "outdoor"
+    STUDIO = "studio"
+    CROSSFIT = "crossfit"
+
+
+# ── Coupon ────────────────────────────────────────────────────────
+
+
+class DiscountType(str, enum.Enum):
+    PERCENTAGE = "percentage"
+    FIXED = "fixed"
+
+
+# ── Gym-Trainer partnership ───────────────────────────────────────
+
+
+class GymTrainerStatus(str, enum.Enum):
+    ACTIVE = "active"
+    PENDING = "pending"
+    REMOVED = "removed"
+
+
+# ── Favorites ─────────────────────────────────────────────────────
+
+
+class FavoriteTargetType(str, enum.Enum):
+    TRAINER = "trainer"
+    GYM = "gym"
+
+
+# ── Audit ─────────────────────────────────────────────────────────
+
+
+class AuditAction(str, enum.Enum):
+    CREATE = "create"
+    UPDATE = "update"
+    DELETE = "delete"
+    LOGIN = "login"
+    APPROVE = "approve"
+    REJECT = "reject"
+    SUSPEND = "suspend"
+    ACTIVATE = "activate"

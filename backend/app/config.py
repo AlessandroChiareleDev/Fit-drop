@@ -1,8 +1,13 @@
+from pathlib import Path
+
 from pydantic_settings import BaseSettings
+
+_BASE_DIR = Path(__file__).resolve().parent.parent
+_DEFAULT_DB = f"sqlite+aiosqlite:///{_BASE_DIR / 'fitdrop.db'}"
 
 
 class Settings(BaseSettings):
-    DATABASE_URL: str = "postgresql+asyncpg://fitdrop:fitdrop@localhost:5432/fitdrop"
+    DATABASE_URL: str = _DEFAULT_DB
     ENVIRONMENT: str = "development"
     DEBUG: bool = True
 

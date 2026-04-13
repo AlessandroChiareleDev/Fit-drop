@@ -16,7 +16,8 @@ router = APIRouter(prefix="/payments", tags=["payments"])
 
 @router.post("", response_model=PaymentRead, status_code=201)
 async def create_payment(body: PaymentCreate, db: AsyncSession = Depends(get_db)):
-    payment = Payment(**body.model_dump())
+    data = {k: str(v) if isinstance(v, uuid.UUID) else v for k, v in body.model_dump().items()}
+    payment = Payment(**data)
     db.add(payment)
     await db.flush()
     await db.refresh(payment)
@@ -35,14 +36,14 @@ async def list_payments(
     if status:
         q = q.where(Payment.status == status)
     if session_id:
-        q = q.where(Payment.session_id == session_id)
+        q = q.where(Payment.session_id == str(session_id))
     result = await db.execute(q.offset(skip).limit(limit))
     return result.scalars().all()
 
 
 @router.get("/{payment_id}", response_model=PaymentRead)
 async def get_payment(payment_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    payment = await db.get(Payment, payment_id)
+    payment = await db.get(Payment, str(payment_id))
     if not payment:
         raise HTTPException(404, "Payment not found")
     return payment
@@ -54,7 +55,7 @@ async def update_payment_status(
     body: PaymentUpdateStatus,
     db: AsyncSession = Depends(get_db),
 ):
-    payment = await db.get(Payment, payment_id)
+    payment = await db.get(Payment, str(payment_id))
     if not payment:
         raise HTTPException(404, "Payment not found")
 

@@ -4,7 +4,6 @@ import uuid
 from datetime import date, time
 
 from sqlalchemy import Date, ForeignKey, Integer, String, Time
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.enums import RecurrenceType
@@ -15,7 +14,7 @@ class TrainerAvailability(BaseModel):
     __tablename__ = "trainer_availabilities"
 
     trainer_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("trainers.id"), nullable=False
+        String(36), ForeignKey("trainers.id"), nullable=False
     )
     day_of_week: Mapped[int] = mapped_column(
         Integer, nullable=False

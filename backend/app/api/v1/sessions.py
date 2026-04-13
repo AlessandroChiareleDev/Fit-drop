@@ -16,7 +16,8 @@ router = APIRouter(prefix="/sessions", tags=["sessions"])
 
 @router.post("", response_model=SessionRead, status_code=201)
 async def create_session(body: SessionCreate, db: AsyncSession = Depends(get_db)):
-    session = Session(**body.model_dump())
+    data = {k: str(v) if isinstance(v, uuid.UUID) else v for k, v in body.model_dump().items()}
+    session = Session(**data)
     db.add(session)
     await db.flush()
     await db.refresh(session)
@@ -36,16 +37,16 @@ async def list_sessions(
     if status:
         q = q.where(Session.status == status)
     if trainer_id:
-        q = q.where(Session.trainer_id == trainer_id)
+        q = q.where(Session.trainer_id == str(trainer_id))
     if user_id:
-        q = q.where(Session.user_id == user_id)
+        q = q.where(Session.user_id == str(user_id))
     result = await db.execute(q.offset(skip).limit(limit))
     return result.scalars().all()
 
 
 @router.get("/{session_id}", response_model=SessionRead)
 async def get_session(session_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    session = await db.get(Session, session_id)
+    session = await db.get(Session, str(session_id))
     if not session:
         raise HTTPException(404, "Session not found")
     return session
@@ -57,7 +58,7 @@ async def update_session_status(
     body: SessionUpdateStatus,
     db: AsyncSession = Depends(get_db),
 ):
-    session = await db.get(Session, session_id)
+    session = await db.get(Session, str(session_id))
     if not session:
         raise HTTPException(404, "Session not found")
 

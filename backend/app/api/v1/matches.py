@@ -17,7 +17,8 @@ router = APIRouter(prefix="/matches", tags=["matches"])
 
 @router.post("", response_model=MatchRead, status_code=201)
 async def create_match(body: MatchCreate, db: AsyncSession = Depends(get_db)):
-    match = Match(**body.model_dump())
+    data = {k: str(v) if isinstance(v, uuid.UUID) else v for k, v in body.model_dump().items()}
+    match = Match(**data)
     db.add(match)
     await db.flush()
     await db.refresh(match)
@@ -27,6 +28,7 @@ async def create_match(body: MatchCreate, db: AsyncSession = Depends(get_db)):
 @router.get("", response_model=list[MatchRead])
 async def list_matches(
     request_id: uuid.UUID | None = None,
+    trainer_id: uuid.UUID | None = None,
     status: MatchStatus | None = None,
     skip: int = 0,
     limit: int = 50,
@@ -34,7 +36,9 @@ async def list_matches(
 ):
     q = select(Match).order_by(Match.created_at.desc())
     if request_id:
-        q = q.where(Match.request_id == request_id)
+        q = q.where(Match.request_id == str(request_id))
+    if trainer_id:
+        q = q.where(Match.trainer_id == str(trainer_id))
     if status:
         q = q.where(Match.status == status)
     result = await db.execute(q.offset(skip).limit(limit))
@@ -43,7 +47,7 @@ async def list_matches(
 
 @router.get("/{match_id}", response_model=MatchRead)
 async def get_match(match_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    match = await db.get(Match, match_id)
+    match = await db.get(Match, str(match_id))
     if not match:
         raise HTTPException(404, "Match not found")
     return match
@@ -55,7 +59,7 @@ async def update_match_status(
     body: MatchUpdateStatus,
     db: AsyncSession = Depends(get_db),
 ):
-    match = await db.get(Match, match_id)
+    match = await db.get(Match, str(match_id))
     if not match:
         raise HTTPException(404, "Match not found")
 

@@ -15,7 +15,8 @@ router = APIRouter(prefix="/incidents", tags=["incidents"])
 
 @router.post("", response_model=IncidentRead, status_code=201)
 async def create_incident(body: IncidentCreate, db: AsyncSession = Depends(get_db)):
-    incident = Incident(**body.model_dump())
+    data = {k: str(v) if isinstance(v, uuid.UUID) else v for k, v in body.model_dump().items()}
+    incident = Incident(**data)
     db.add(incident)
     await db.flush()
     await db.refresh(incident)
@@ -34,14 +35,14 @@ async def list_incidents(
     if status:
         q = q.where(Incident.status == status)
     if session_id:
-        q = q.where(Incident.session_id == session_id)
+        q = q.where(Incident.session_id == str(session_id))
     result = await db.execute(q.offset(skip).limit(limit))
     return result.scalars().all()
 
 
 @router.get("/{incident_id}", response_model=IncidentRead)
 async def get_incident(incident_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    incident = await db.get(Incident, incident_id)
+    incident = await db.get(Incident, str(incident_id))
     if not incident:
         raise HTTPException(404, "Incident not found")
     return incident
@@ -53,7 +54,7 @@ async def update_incident(
     body: IncidentUpdate,
     db: AsyncSession = Depends(get_db),
 ):
-    incident = await db.get(Incident, incident_id)
+    incident = await db.get(Incident, str(incident_id))
     if not incident:
         raise HTTPException(404, "Incident not found")
 

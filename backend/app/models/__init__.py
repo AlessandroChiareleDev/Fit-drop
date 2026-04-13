@@ -9,6 +9,12 @@ from app.models.payment import Payment
 from app.models.payout import Payout
 from app.models.review import Review
 from app.models.incident import Incident
+from app.models.gym import Gym
+from app.models.coupon import Coupon
+from app.models.gym_trainer import GymTrainer
+from app.models.gym_review import GymReview
+from app.models.favorite import Favorite
+from app.models.audit_log import AuditLog
 
 __all__ = [
     "Base",
@@ -23,4 +29,10 @@ __all__ = [
     "Payout",
     "Review",
     "Incident",
+    "Gym",
+    "Coupon",
+    "GymTrainer",
+    "GymReview",
+    "Favorite",
+    "AuditLog",
 ]

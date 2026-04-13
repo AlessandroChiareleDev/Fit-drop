@@ -4,7 +4,6 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import DateTime, ForeignKey, String, Text
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.enums import IncidentImpact, IncidentStatus, IncidentType
@@ -15,7 +14,7 @@ class Incident(BaseModel):
     __tablename__ = "incidents"
 
     session_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("sessions.id"), nullable=False
+        String(36), ForeignKey("sessions.id"), nullable=False
     )
 
     reported_by: Mapped[str] = mapped_column(String(200), nullable=False)

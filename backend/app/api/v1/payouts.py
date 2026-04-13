@@ -16,7 +16,8 @@ router = APIRouter(prefix="/payouts", tags=["payouts"])
 
 @router.post("", response_model=PayoutRead, status_code=201)
 async def create_payout(body: PayoutCreate, db: AsyncSession = Depends(get_db)):
-    payout = Payout(**body.model_dump())
+    data = {k: str(v) if isinstance(v, uuid.UUID) else v for k, v in body.model_dump().items()}
+    payout = Payout(**data)
     db.add(payout)
     await db.flush()
     await db.refresh(payout)
@@ -35,14 +36,14 @@ async def list_payouts(
     if status:
         q = q.where(Payout.status == status)
     if trainer_id:
-        q = q.where(Payout.trainer_id == trainer_id)
+        q = q.where(Payout.trainer_id == str(trainer_id))
     result = await db.execute(q.offset(skip).limit(limit))
     return result.scalars().all()
 
 
 @router.get("/{payout_id}", response_model=PayoutRead)
 async def get_payout(payout_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    payout = await db.get(Payout, payout_id)
+    payout = await db.get(Payout, str(payout_id))
     if not payout:
         raise HTTPException(404, "Payout not found")
     return payout
@@ -54,7 +55,7 @@ async def update_payout_status(
     body: PayoutUpdateStatus,
     db: AsyncSession = Depends(get_db),
 ):
-    payout = await db.get(Payout, payout_id)
+    payout = await db.get(Payout, str(payout_id))
     if not payout:
         raise HTTPException(404, "Payout not found")
 

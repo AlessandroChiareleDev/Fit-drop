@@ -5,7 +5,6 @@ from datetime import date, datetime
 from decimal import Decimal
 
 from sqlalchemy import Date, DateTime, ForeignKey, Numeric, String
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.enums import PayoutStatus
@@ -16,10 +15,10 @@ class Payout(BaseModel):
     __tablename__ = "payouts"
 
     session_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("sessions.id"), nullable=False, unique=True
+        String(36), ForeignKey("sessions.id"), nullable=False, unique=True
     )
     trainer_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("trainers.id"), nullable=False
+        String(36), ForeignKey("trainers.id"), nullable=False
     )
 
     amount: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
